@@ -8,25 +8,18 @@ import string
 import os
 import atexit
 
-# АБСТРАКТНЫЕ БАЗОВЫЕ КЛАССЫ
-
 class BaseEntity(ABC):
-    # Абстрактная сущность предметной области.
 
     @abstractmethod
     def describe(self) -> str:
         ...
 
-
 class BaseUI(ABC):
-    # Абстрактный UI-компонент
 
     @abstractmethod
     def build(self) -> ft.Control:
         ...
 
-
-# ПРЕДМЕТНЫЕ КЛАССЫ
 
 @total_ordering
 class User(BaseEntity):
@@ -38,7 +31,6 @@ class User(BaseEntity):
         self._time_in: Optional[datetime] = None
         self._time_out: Optional[datetime] = None
 
-    # геттеры / сеттеры
     @property
     def login(self) -> str:
         return self._login
@@ -73,7 +65,6 @@ class User(BaseEntity):
     def time_out(self, value: datetime) -> None:
         self._time_out = value
 
-    # специальные методы
     def describe(self) -> str:
         return f"User({self._login})"
 
@@ -109,7 +100,6 @@ class PasswordEntry(BaseEntity):
         self._created_at = created_at or datetime.now()
         self._length = length or len(password)
 
-    # геттеры / сеттеры
     @property
     def site(self) -> str:
         return self._site
@@ -147,7 +137,6 @@ class PasswordEntry(BaseEntity):
     def length(self) -> int:
         return self._length
 
-    # специальные методы
     def describe(self) -> str:
         return f"{self._site}:{self._login} -> {self._password}"
 
@@ -174,15 +163,7 @@ class PasswordEntry(BaseEntity):
     def __len__(self) -> int:
         return self._length
 
-
-# КАСТОМНЫЙ МАППИНГ (вместо dict)
-
 class LoginMap:
-
-   # Кастомная замена dict.
-   # Хранит пары ключ-значение в двух параллельных списках.
-   # Ключ — строка (site+login), значение — PasswordEntry.
-
 
     def __init__(self):
         self._keys: list[str] = []
@@ -239,7 +220,6 @@ class LoginMap:
     def __str__(self) -> str:
         return "\n".join(str(v) for v in self._values)
 
-
 # ГЕНЕРАТОР ПАРОЛЕЙ
 
 class PasswordGenerator(BaseEntity):
@@ -252,7 +232,6 @@ class PasswordGenerator(BaseEntity):
         self._use_symbols = False
         self._length = 12
 
-    # геттеры / сеттеры
     @property
     def length(self) -> int:
         return self._length
@@ -295,7 +274,6 @@ class PasswordGenerator(BaseEntity):
     def use_symbols(self, value: bool) -> None:
         self._use_symbols = value
 
-    # функциональность
     @staticmethod
     def estimate_strength(password: str) -> str:
         score = 0
@@ -345,9 +323,6 @@ class PasswordGenerator(BaseEntity):
         return (f"Generator(len={self._length}, lower={self._use_lower}, "
                 f"upper={self._use_upper}, digits={self._use_digits}, "
                 f"symbols={self._use_symbols})")
-
-
-# UI-КОМПОНЕНТЫ (каждый наследуется от BaseUI)
 
 class TitleText(BaseUI):
     def __init__(self, text: str):
@@ -419,7 +394,6 @@ class ClearButton(BaseUI):
                                  on_click=self._on_click, width=200)
 
     class EntryRow(BaseUI):
-       # Строка в списке истории
 
         def __init__(self, entry: PasswordEntry):
             self._entry = entry
@@ -535,7 +509,6 @@ class CopyButton(BaseUI):
 # ГЛАВНОЕ ПРИЛОЖЕНИЕ
 
 class PasswordApp:
-   # Оркестратор UI. Хранит состояние и собирает страницу
 
     REPORT_FILE = "report.txt"
 
@@ -545,7 +518,6 @@ class PasswordApp:
         self.generator = PasswordGenerator()
         self.storage = LoginMap()
 
-        # UI-контролы
         self.site_field = InputField("Сайт (например, github.com)").control
         self.login_field = InputField("Логин").control
         self.result_field = InputField("Сгенерированный пароль",
@@ -572,7 +544,6 @@ class PasswordApp:
 
         self._build_page()
 
-    # обработчики
     def _on_length_change(self, e):
         self.generator.length = int(e.control.value)
         self.length_label.value = f"Длина: {self.generator.length}"
@@ -627,7 +598,6 @@ class PasswordApp:
             HistoryList(entries).build(),
         ]
 
-    # сборка страницы
     def _build_page(self):
         self.page.title = "Генератор паролей"
         self.page.window_width = 720
@@ -673,7 +643,6 @@ class PasswordApp:
             )
         )
 
-    # отчёт
     def save_report(self):
         self.user.time_out = datetime.now()
         fmt = "%d.%m.%Y %H:%M:%S"
@@ -687,8 +656,6 @@ class PasswordApp:
         lines.append("+")
         with open(self.REPORT_FILE, "w", encoding="utf-8") as f:
             f.write("\n".join(lines))
-
-# ТОЧКА ВХОДА
 
 def main(page: ft.Page):
     user = User("UserName")
