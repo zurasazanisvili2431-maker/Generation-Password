@@ -223,7 +223,6 @@ class LoginMap:
 # ГЕНЕРАТОР ПАРОЛЕЙ
 
 class PasswordGenerator(BaseEntity):
-    """Генератор паролей с настраиваемыми параметрами."""
 
     def __init__(self):
         self._use_lower = True
